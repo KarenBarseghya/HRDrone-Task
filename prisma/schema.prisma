@@ -1,0 +1,37 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum StatusEnum {
+  ACCEPTED
+  PENDING
+}
+
+model User {
+  id       String  @id @default(uuid())
+  name     String
+  surname  String 
+  email    String  @unique
+  password String
+  age      Int
+
+  sentRequests    Request[] @relation("Sender")
+  receivedRequests Request[] @relation("Receiver")
+}
+
+model Request {
+  id        String     @id @default(uuid())
+  
+  senderId  String 
+  sender    User @relation("Sender", fields: [senderId], references: [id], onDelete: Cascade)
+
+  getterId  String
+  getter    User @relation("Receiver", fields: [getterId], references: [id], onDelete: Cascade)
+
+  status    StatusEnum  @default(PENDING)
+}
