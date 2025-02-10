@@ -8,7 +8,7 @@ export class AppController {
   @Get('test-db')
   async testDatabase() {
     try {
-      const users = await this.prisma.user.findMany(); // Fetch all users
+      const users = await this.prisma.user.findMany();
       return { success: true, users };
     } catch (error) {
       return { success: false, message: 'Database connection failed', error };

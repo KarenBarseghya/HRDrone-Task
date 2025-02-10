@@ -81,23 +81,23 @@ export class RequestService {
       throw new NotFoundException('User not found');
     }
 
-    // const requests = await this.prisma.request.findMany({
-    //   where: {
-    //     OR: [{ getterId: userId }, { senderId: userId }],
-    //     AND: { status: StatusEnum.ACCEPTED },
-    //   },
-    // });
-
     const userRequests = await this.prisma.user.findUnique({
       where: { id: userId },
       include: {
-        sentRequests: { where: { status: StatusEnum.ACCEPTED } },
-        receivedRequests: { where: { status: StatusEnum.ACCEPTED } },
+        sentRequests: {
+          where: { status: StatusEnum.ACCEPTED },
+          select: { getterId: true },
+        },
+        receivedRequests: {
+          where: { status: StatusEnum.ACCEPTED },
+          select: { senderId: true },
+        },
       },
     });
-    const requests = userRequests.sentRequests.concat(
-      userRequests.receivedRequests,
-    );
+    const requests = [
+      ...userRequests.sentRequests.map((obj) => obj.getterId),
+      ...userRequests.receivedRequests.map((obj) => obj.senderId),
+    ];
 
     return requests;
   }
@@ -109,21 +109,17 @@ export class RequestService {
       throw new NotFoundException('User not found');
     }
 
-    // const requests = await this.prisma.request.findMany({
-    //   where: {
-    //     senderId: userId,
-    //     status: StatusEnum.PENDING,
-    //   },
-    // });
-
     const userRequests = await this.prisma.user.findUnique({
       where: { id: userId },
       include: {
-        sentRequests: { where: { status: StatusEnum.PENDING } },
+        sentRequests: {
+          where: { status: StatusEnum.PENDING },
+          select: { getterId: true },
+        },
       },
     });
-
-    return userRequests.sentRequests;
+    const requests = [...userRequests.sentRequests.map((obj) => obj.getterId)];
+    return requests;
   }
 
   async getUserRequestsInComing({ userId }: { userId: string }) {
@@ -133,19 +129,18 @@ export class RequestService {
       throw new NotFoundException('User not found');
     }
 
-    // const requests = await this.prisma.request.findMany({
-    //   where: {
-    //     getterId: userId,
-    //     status: StatusEnum.PENDING,
-    //   },
-    // });
-
     const userRequests = await this.prisma.user.findUnique({
       where: { id: userId },
       include: {
-        receivedRequests: { where: { status: StatusEnum.PENDING } },
+        receivedRequests: {
+          where: { status: StatusEnum.PENDING },
+          select: { senderId: true },
+        },
       },
     });
-    return userRequests.receivedRequests;
+    const requests = [
+      ...userRequests.receivedRequests.map((obj) => obj.senderId),
+    ];
+    return requests;
   }
 }
