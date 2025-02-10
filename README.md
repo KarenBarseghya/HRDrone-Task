@@ -23,6 +23,16 @@ This project is a NestJS application designed for user authentication, friend re
 1. **Clone the repository:**
 
    ```bash
-   git clone <repository-url>
-   cd <repository-directory>
+   git clone <https://github.com/KarenBarseghya/HRDrone-Task>
+   cd <HRDrone-Task>
    ```
+
+## Installation
+
+$ npm install
+
+## Running the app
+
+```bash
+$ npm start
+```
